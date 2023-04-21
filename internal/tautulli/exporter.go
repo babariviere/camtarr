@@ -25,8 +25,25 @@ func NewExporter(config Config) *Exporter {
 	return &Exporter{
 		config: config,
 		currentStreams: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{Namespace: namespace, Name: "current_streams", Help: "All current streams."},
-			[]string{"state", "library_name", "title", "parent_title", "grandparent_title", "progress", "user"},
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "current_streams",
+				Help:      "All current streams.",
+			},
+			[]string{
+				"state",
+				"library_name",
+				"full_title",
+				"title",
+				"parent_title",
+				"grandparent_title",
+				"progress",
+				"user",
+				"quality_profile",
+				"transcode_decision",
+				"player",
+				"video_full_resolution",
+			},
 		),
 	}
 }
@@ -57,6 +74,19 @@ func (e *Exporter) scrapeActivity() {
 	// fill data
 	data := resp.Response.Data
 	for _, session := range data.Sessions {
-		e.currentStreams.WithLabelValues(session.State, session.LibraryName, session.Title, session.ParentTitle, session.GrandparentTitle, session.ProgressPercent, session.User).Inc()
+		e.currentStreams.WithLabelValues(
+			session.State,
+			session.LibraryName,
+			session.FullTitle,
+			session.Title,
+			session.ParentTitle,
+			session.GrandparentTitle,
+			session.ProgressPercent,
+			session.User,
+			session.QualityProfile,
+			session.TranscodeDecision,
+			session.Player,
+			session.VideoFullResolution,
+		).Inc()
 	}
 }
