@@ -2,6 +2,7 @@ package tautulli
 
 import (
 	"log"
+	"strconv"
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,6 +19,7 @@ type Exporter struct {
 	mu     sync.Mutex
 
 	currentStreams *prometheus.GaugeVec
+	streamHistory  *prometheus.GaugeVec
 }
 
 func NewExporter(config Config) *Exporter {
@@ -45,11 +47,31 @@ func NewExporter(config Config) *Exporter {
 				"video_full_resolution",
 			},
 		),
+		streamHistory: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "stream_history",
+				Help:      "History of past streams.",
+			},
+			[]string{
+				"media_type",
+				"full_title",
+				"title",
+				"parent_title",
+				"grandparent_title",
+				"user",
+				"transcode_decision",
+				"player",
+				"product",
+				"play_duration",
+			},
+		),
 	}
 }
 
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	e.currentStreams.Describe(ch)
+	e.streamHistory.Describe(ch)
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
@@ -57,8 +79,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer e.mu.Unlock()
 
 	e.scrapeActivity()
+	e.scrapeHistory()
 
 	e.currentStreams.Collect(ch)
+	e.streamHistory.Collect(ch)
 }
 
 func (e *Exporter) scrapeActivity() {
@@ -87,6 +111,34 @@ func (e *Exporter) scrapeActivity() {
 			session.TranscodeDecision,
 			session.Player,
 			session.VideoFullResolution,
+		).Inc()
+	}
+}
+
+func (e *Exporter) scrapeHistory() {
+	resp, err := getHistory(e.config.Uri, e.config.ApiKey)
+	if err != nil {
+		log.Println("[tautulli] cannot get history:", err)
+		return
+	}
+
+	// reset
+	e.streamHistory.Reset()
+
+	// fill data
+	data := resp.Response.Data
+	for _, entry := range data.Data {
+		e.streamHistory.WithLabelValues(
+			entry.MediaType,
+			entry.FullTitle,
+			entry.Title,
+			entry.ParentTitle,
+			entry.GrandparentTitle,
+			entry.User,
+			entry.TranscodeDecision,
+			entry.Player,
+			entry.Product,
+			strconv.Itoa(entry.PlayDuration),
 		).Inc()
 	}
 }

@@ -247,3 +247,22 @@ type respGetActivity struct {
 		} `json:"data"`
 	} `json:"response"`
 }
+
+type respGetHistory struct {
+	Response struct {
+		Data struct {
+			Data []struct {
+				PlayDuration      int    `json:"play_duration"`
+				User              string `json:"user"`
+				Product           string `json:"product"`
+				Player            string `json:"player"`
+				MediaType         string `json:"media_type"`
+				FullTitle         string `json:"full_title"`
+				Title             string `json:"title"`
+				ParentTitle       string `json:"parent_title"`
+				GrandparentTitle  string `json:"grandparent_title"`
+				TranscodeDecision string `json:"transcode_decision"`
+			} `json:"data"`
+		} `json:"data"`
+	} `json:"response"`
+}
