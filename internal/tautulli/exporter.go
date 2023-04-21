@@ -64,6 +64,7 @@ func NewExporter(config Config) *Exporter {
 				"player",
 				"product",
 				"play_duration",
+				"date",
 			},
 		),
 	}
@@ -139,6 +140,7 @@ func (e *Exporter) scrapeHistory() {
 			entry.Player,
 			entry.Product,
 			strconv.Itoa(entry.PlayDuration),
+			strconv.Itoa(entry.Date),
 		).Inc()
 	}
 }

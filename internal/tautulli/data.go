@@ -32,6 +32,7 @@ type respGetHistory struct {
 	Response struct {
 		Data struct {
 			Data []struct {
+				Date              int    `json:"date"`
 				PlayDuration      int    `json:"play_duration"`
 				User              string `json:"user"`
 				Product           string `json:"product"`
