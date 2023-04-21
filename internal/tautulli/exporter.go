@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -140,7 +141,7 @@ func (e *Exporter) scrapeHistory() {
 			entry.Player,
 			entry.Product,
 			strconv.Itoa(entry.PlayDuration),
-			strconv.Itoa(entry.Date),
+			time.Unix(int64(entry.Date), 0).UTC().Format("2006-01-02 15:04:05"),
 		).Inc()
 	}
 }
