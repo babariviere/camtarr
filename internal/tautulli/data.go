@@ -18,12 +18,13 @@ type respGetActivity struct {
 				State               string `json:"state"`
 				TranscodeDecision   string `json:"transcode_decision"`
 			} `json:"sessions"`
-			StreamCountDirectPlay   int `json:"stream_count_direct_play"`
-			StreamCountDirectStream int `json:"stream_count_direct_stream"`
-			StreamCountTranscode    int `json:"stream_count_transcode"`
-			TotalBandwidth          int `json:"total_bandwidth"`
-			LanBandwidth            int `json:"lan_bandwidth"`
-			WanBandwidth            int `json:"wan_bandwidth"`
+			StreamCountDirectPlay   int    `json:"stream_count_direct_play"`
+			StreamCountDirectStream int    `json:"stream_count_direct_stream"`
+			StreamCountTranscode    int    `json:"stream_count_transcode"`
+			StreamCount             string `json:"stream_count"`
+			TotalBandwidth          int    `json:"total_bandwidth"`
+			LanBandwidth            int    `json:"lan_bandwidth"`
+			WanBandwidth            int    `json:"wan_bandwidth"`
 		} `json:"data"`
 	} `json:"response"`
 }

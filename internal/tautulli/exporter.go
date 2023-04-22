@@ -21,6 +21,9 @@ type Exporter struct {
 
 	currentStreams *prometheus.GaugeVec
 	streamHistory  *prometheus.GaugeVec
+
+	totalBandwidth, lanBandwidth, wanBandwidth                                        prometheus.Gauge
+	streamCount, streamCountDirectPlay, streamCountDirectStream, streamCountTranscode prometheus.Gauge
 }
 
 func NewExporter(config Config) *Exporter {
@@ -68,12 +71,56 @@ func NewExporter(config Config) *Exporter {
 				"date",
 			},
 		),
+		totalBandwidth: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "total_bandwidth",
+			Help:      "Total bandwidth usage for streams.",
+		}),
+		wanBandwidth: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "wan_bandwidth",
+			Help:      "WAN bandwidth usage for streams.",
+		}),
+		lanBandwidth: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "lan_bandwidth",
+			Help:      "LAN bandwidth usage for streams.",
+		}),
+		streamCount: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "stream_count",
+			Help:      "Total number of streams.",
+		}),
+		streamCountDirectPlay: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "stream_count_direct_play",
+			Help:      "Total number of streams using direct play",
+		}),
+		streamCountDirectStream: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "stream_count_direct_stream",
+			Help:      "Total number of streams using direct stream",
+		}),
+		streamCountTranscode: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: namespace,
+			Name:      "stream_count_transcode",
+			Help:      "Total number of streams using transcode",
+		}),
 	}
 }
 
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	e.currentStreams.Describe(ch)
 	e.streamHistory.Describe(ch)
+
+	ch <- e.totalBandwidth.Desc()
+	ch <- e.wanBandwidth.Desc()
+	ch <- e.lanBandwidth.Desc()
+
+	ch <- e.streamCount.Desc()
+	ch <- e.streamCountDirectPlay.Desc()
+	ch <- e.streamCountDirectStream.Desc()
+	ch <- e.streamCountTranscode.Desc()
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
@@ -85,6 +132,16 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	e.currentStreams.Collect(ch)
 	e.streamHistory.Collect(ch)
+
+	ch <- e.totalBandwidth
+	ch <- e.wanBandwidth
+	ch <- e.lanBandwidth
+
+	ch <- e.streamCount
+	ch <- e.streamCountDirectPlay
+	ch <- e.streamCountDirectStream
+	ch <- e.streamCountTranscode
+
 }
 
 func (e *Exporter) scrapeActivity() {
@@ -115,6 +172,16 @@ func (e *Exporter) scrapeActivity() {
 			session.VideoFullResolution,
 		).Inc()
 	}
+
+	e.totalBandwidth.Set(float64(data.TotalBandwidth))
+	e.wanBandwidth.Set(float64(data.WanBandwidth))
+	e.lanBandwidth.Set(float64(data.LanBandwidth))
+
+	streamCount, _ := strconv.Atoi(data.StreamCount)
+	e.streamCount.Set(float64(streamCount))
+	e.streamCountDirectPlay.Set(float64(data.StreamCountDirectPlay))
+	e.streamCountDirectStream.Set(float64(data.StreamCountDirectStream))
+	e.streamCountTranscode.Set(float64(data.StreamCountTranscode))
 }
 
 func (e *Exporter) scrapeHistory() {
