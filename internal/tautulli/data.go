@@ -4,20 +4,22 @@ type respGetActivity struct {
 	Response struct {
 		Data struct {
 			Sessions []struct {
+				FullTitle           string `json:"full_title"`
+				GrandparentTitle    string `json:"grandparent_title"`
+				LibraryName         string `json:"library_name"`
 				MediaType           string `json:"media_type"`
+				ParentTitle         string `json:"parent_title"`
+				Player              string `json:"player"`
+				Product             string `json:"product"`
+				ProductVersion      string `json:"product_version"`
 				ProgressPercent     string `json:"progress_percent"`
 				QualityProfile      string `json:"quality_profile"`
-				User                string `json:"user"`
-				LibraryName         string `json:"library_name"`
-				Title               string `json:"title"`
-				ParentTitle         string `json:"parent_title"`
-				GrandparentTitle    string `json:"grandparent_title"`
-				FullTitle           string `json:"full_title"`
-				VideoFullResolution string `json:"video_full_resolution"`
-				Player              string `json:"player"`
-				State               string `json:"state"`
-				TranscodeDecision   string `json:"transcode_decision"`
 				SessionID           string `json:"session_id"`
+				State               string `json:"state"`
+				Title               string `json:"title"`
+				TranscodeDecision   string `json:"transcode_decision"`
+				User                string `json:"user"`
+				VideoFullResolution string `json:"video_full_resolution"`
 			} `json:"sessions"`
 			StreamCountDirectPlay   int    `json:"stream_count_direct_play"`
 			StreamCountDirectStream int    `json:"stream_count_direct_stream"`

@@ -50,6 +50,9 @@ func NewExporter(config Config) *Exporter {
 				"player",
 				"video_full_resolution",
 				"session_id",
+				"media_type",
+				"product",
+				"product_version",
 			},
 		),
 		streamHistory: prometheus.NewGaugeVec(
@@ -175,6 +178,9 @@ func (e *Exporter) scrapeActivity() {
 			session.Player,
 			session.VideoFullResolution,
 			session.SessionID,
+			session.MediaType,
+			session.Product,
+			session.ProductVersion,
 		).Inc()
 	}
 
