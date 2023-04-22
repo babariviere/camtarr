@@ -19,8 +19,8 @@ type Exporter struct {
 	config Config
 	mu     sync.Mutex
 
-	currentStreams *prometheus.GaugeVec
-	streamHistory  *prometheus.GaugeVec
+	streams       *prometheus.GaugeVec
+	streamHistory *prometheus.GaugeVec
 
 	totalBandwidth, lanBandwidth, wanBandwidth                                        prometheus.Gauge
 	streamCount, streamCountDirectPlay, streamCountDirectStream, streamCountTranscode prometheus.Gauge
@@ -30,10 +30,10 @@ func NewExporter(config Config) *Exporter {
 	namespace := "tautulli"
 	return &Exporter{
 		config: config,
-		currentStreams: prometheus.NewGaugeVec(
+		streams: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: namespace,
-				Name:      "current_streams",
+				Name:      "streams",
 				Help:      "All current streams.",
 			},
 			[]string{
@@ -49,6 +49,7 @@ func NewExporter(config Config) *Exporter {
 				"transcode_decision",
 				"player",
 				"video_full_resolution",
+				"session_id",
 			},
 		),
 		streamHistory: prometheus.NewGaugeVec(
@@ -110,7 +111,7 @@ func NewExporter(config Config) *Exporter {
 }
 
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
-	e.currentStreams.Describe(ch)
+	e.streams.Describe(ch)
 	e.streamHistory.Describe(ch)
 
 	ch <- e.totalBandwidth.Desc()
@@ -130,7 +131,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.scrapeActivity()
 	e.scrapeHistory()
 
-	e.currentStreams.Collect(ch)
+	e.streams.Collect(ch)
 	e.streamHistory.Collect(ch)
 
 	ch <- e.totalBandwidth
@@ -152,12 +153,12 @@ func (e *Exporter) scrapeActivity() {
 	}
 
 	// reset
-	e.currentStreams.Reset()
+	e.streams.Reset()
 
 	// fill data
 	data := resp.Response.Data
 	for _, session := range data.Sessions {
-		e.currentStreams.WithLabelValues(
+		e.streams.WithLabelValues(
 			session.State,
 			session.LibraryName,
 			session.FullTitle,
@@ -170,6 +171,7 @@ func (e *Exporter) scrapeActivity() {
 			session.TranscodeDecision,
 			session.Player,
 			session.VideoFullResolution,
+			session.SessionID,
 		).Inc()
 	}
 

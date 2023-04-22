@@ -17,6 +17,7 @@ type respGetActivity struct {
 				Player              string `json:"player"`
 				State               string `json:"state"`
 				TranscodeDecision   string `json:"transcode_decision"`
+				SessionID           string `json:"session_id"`
 			} `json:"sessions"`
 			StreamCountDirectPlay   int    `json:"stream_count_direct_play"`
 			StreamCountDirectStream int    `json:"stream_count_direct_stream"`
