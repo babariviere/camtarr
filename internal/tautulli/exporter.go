@@ -53,6 +53,7 @@ func NewExporter(config Config) *Exporter {
 				"media_type",
 				"product",
 				"product_version",
+				"platform",
 			},
 		),
 		streamHistory: prometheus.NewGaugeVec(
@@ -181,6 +182,7 @@ func (e *Exporter) scrapeActivity() {
 			session.MediaType,
 			session.Product,
 			session.ProductVersion,
+			session.Platform,
 		).Inc()
 	}
 

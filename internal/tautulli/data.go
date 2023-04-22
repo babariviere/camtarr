@@ -9,6 +9,7 @@ type respGetActivity struct {
 				LibraryName         string `json:"library_name"`
 				MediaType           string `json:"media_type"`
 				ParentTitle         string `json:"parent_title"`
+				Platform            string `json:"platform"`
 				Player              string `json:"player"`
 				Product             string `json:"product"`
 				ProductVersion      string `json:"product_version"`
