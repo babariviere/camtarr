@@ -28,7 +28,7 @@ type Exporter struct {
 
 func NewExporter(config Config) *Exporter {
 	namespace := "tautulli"
-	return &Exporter{
+	exp := &Exporter{
 		config: config,
 		streams: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -108,6 +108,10 @@ func NewExporter(config Config) *Exporter {
 			Help:      "Total number of streams using transcode",
 		}),
 	}
+
+	go exp.runBackgroundScrapes()
+
+	return exp
 }
 
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
@@ -129,7 +133,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer e.mu.Unlock()
 
 	e.scrapeActivity()
-	e.scrapeHistory()
 
 	e.streams.Collect(ch)
 	e.streamHistory.Collect(ch)
@@ -212,5 +215,22 @@ func (e *Exporter) scrapeHistory() {
 			strconv.Itoa(entry.PlayDuration),
 			time.Unix(int64(entry.Date), 0).UTC().Format("2006-01-02 15:04:05"),
 		).Inc()
+	}
+}
+
+func (e *Exporter) runBackgroundScrapes() {
+	ticker := time.NewTicker(15 * time.Minute)
+	defer ticker.Stop()
+
+	scrape := func() {
+		log.Println("[tautulli] scraping history")
+		e.mu.Lock()
+		e.scrapeHistory()
+		e.mu.Unlock()
+	}
+
+	scrape()
+	for range ticker.C {
+		scrape()
 	}
 }
