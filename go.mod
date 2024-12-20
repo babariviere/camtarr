@@ -3,6 +3,7 @@ module github.com/babariviere/camtarr
 go 1.20
 
 require (
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/prometheus/client_golang v1.16.0
